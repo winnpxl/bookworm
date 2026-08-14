@@ -52,6 +52,36 @@ rainbow gradient reserved for button borders, italicised headline words and the
 brand mark. Shadows never exceed 8% black. Radii: 16px inputs, 24px cards, 28px
 buttons, pill chips. Typeset in Switzer with General Sans for display.
 
+## Theming
+
+Dark mode follows the device by default and needs no interaction. There are
+three states, resolved in CSS:
+
+| State | Root attribute | Behaviour |
+| --- | --- | --- |
+| Auto *(default)* | none | Follows `prefers-color-scheme`, live — no reload needed |
+| Light | `data-theme="light"` | Pinned light, even on a dark device |
+| Dark | `data-theme="dark"` | Pinned dark, even on a light device |
+
+The switch in the nav cycles auto → light → dark and stores the choice under
+`bookworm:theme`; a rainbow pip on the button marks auto. A small inline script
+in each page's `<head>` applies a pinned choice before first paint, so there is
+no flash of the wrong theme.
+
+Dark inverts the system's own logic rather than inverting its colours: the navy
+ink becomes the canvas, the canvas becomes the ink, and each pastel wash sinks
+to a deep tint of the same hue with a light tint of that hue carrying its text.
+The rainbow is untouched.
+
+**Covers stay bright in the dark.** Book covers, avatars and the status tags
+that sit on them keep the light pastel palette in both themes — a cover is an
+object, not a surface, and it holds its colour in a dim room the way a real one
+does. Only page surfaces flip.
+
+Every text/background pair on all four pages was measured against WCAG AA in
+both themes and passes. Two colours were adjusted away from the source system
+to get there, both noted in comments in `style.css`.
+
 ## Status
 
 Prototype. The analysis text is pre-written sample content, not live model

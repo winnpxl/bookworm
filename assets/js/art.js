@@ -166,8 +166,8 @@ function logoSVG(size = 30) {
         <stop offset=".8"  stop-color="#ffc837"/><stop offset="1"  stop-color="#00cc3d"/>
       </linearGradient>
     </defs>
-    <rect width="32" height="32" rx="9" fill="#08304c"/>
-    <path d="M7 9.5c3.4-1.3 5.9-1.3 8.6.6v13c-2.7-1.9-5.2-1.9-8.6-.6z" fill="#fff" opacity=".95"/>
+    <rect width="32" height="32" rx="9" style="fill:var(--ink)"/>
+    <path d="M7 9.5c3.4-1.3 5.9-1.3 8.6.6v13c-2.7-1.9-5.2-1.9-8.6-.6z" style="fill:var(--surface)" opacity=".95"/>
     <path d="M25 9.5c-3.4-1.3-5.9-1.3-8.6.6v13c2.7-1.9 5.2-1.9 8.6-.6z" fill="url(#${g})"/>
   </svg>`;
 }
@@ -181,7 +181,7 @@ function gaugeSVG(score) {
     <defs><linearGradient id="${g}" x1="0" y1="0" x2="1" y2="1">
       <stop offset="0" stop-color="${col}"/><stop offset="1" stop-color="#26c0ff"/>
     </linearGradient></defs>
-    <circle cx="46" cy="46" r="${r}" fill="none" stroke="#eeeeee" stroke-width="7"/>
+    <circle cx="46" cy="46" r="${r}" fill="none" style="stroke:var(--track)" stroke-width="7"/>
     <circle cx="46" cy="46" r="${r}" fill="none" stroke="url(#${g})" stroke-width="7"
             stroke-linecap="round" stroke-dasharray="${c}"
             stroke-dashoffset="${c - (score / 100) * c}"/>
@@ -204,7 +204,10 @@ function icon(name, size = 18) {
     menu: '<path d="M3 6h14M3 10h14M3 14h14"/>',
     star: '<path fill="currentColor" d="M10 2.8l2.2 4.7 5 .7-3.6 3.5.9 5-4.5-2.4L5.5 16.7l.9-5L2.8 8.2l5-.7z"/>',
     clock: '<circle cx="10" cy="10" r="7"/><path d="M10 6v4.2l2.6 1.6"/>',
-    chevron: '<path d="M6 8l4 4 4-4"/>'
+    chevron: '<path d="M6 8l4 4 4-4"/>',
+    sun: '<circle cx="10" cy="10" r="3.6"/><path d="M10 2.4v1.8M10 15.8v1.8M17.6 10h-1.8M4.2 10H2.4M15.4 4.6l-1.3 1.3M5.9 14.1l-1.3 1.3M15.4 15.4l-1.3-1.3M5.9 5.9L4.6 4.6"/>',
+    moon: '<path d="M16 11.7A6.6 6.6 0 0 1 8.3 4a6.9 6.9 0 1 0 7.7 7.7z"/>',
+    auto: '<circle cx="10" cy="10" r="6.8"/><path d="M10 3.2a6.8 6.8 0 0 1 0 13.6z" fill="currentColor" stroke="none"/>'
   }[name] || '';
   return `<svg width="${size}" height="${size}" viewBox="0 0 20 20" fill="none" stroke="currentColor"
     stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${p}</svg>`;

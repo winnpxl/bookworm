@@ -6,7 +6,16 @@
 <title>Bookworm — Know a book before you read it</title>
 <meta name="description" content="Bookworm reads the whole book first, then tells you whether it's worth your week. AI summaries, honest read-or-skip verdicts, and recommendations built from what you actually finish.">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='9' fill='%2308304c'/><path d='M7 9.5c3.4-1.3 5.9-1.3 8.6.6v13c-2.7-1.9-5.2-1.9-8.6-.6z' fill='%23fff'/><path d='M25 9.5c-3.4-1.3-5.9-1.3-8.6.6v13c2.7-1.9 5.2-1.9 8.6-.6z' fill='%23ffa130'/></svg>">
+<meta name="color-scheme" content="light dark">
 <link rel="stylesheet" href="assets/css/style.css">
+<script>
+  /* Apply a pinned theme before first paint. No stored choice means no
+     attribute, which leaves the CSS following the device. */
+  try {
+    var t = localStorage.getItem('bookworm:theme');
+    if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t);
+  } catch (e) {}
+</script>
 </head>
 <body data-page="home">
 
@@ -42,7 +51,7 @@
 
         <div class="row row-wrap" style="margin-top:var(--s8);gap:var(--s6)">
           <p class="meta" style="max-width:22ch">Free while in beta · no card, no sign-in yet</p>
-          <span style="width:1px;height:32px;background:var(--ash)"></span>
+          <span style="width:1px;height:32px;background:var(--border-strong)"></span>
           <p class="meta" style="max-width:26ch"><strong class="ink">2.4M books</strong> analysed and counting</p>
         </div>
       </div>
@@ -97,7 +106,7 @@
 <!-- ─────────────────────────────────────────────── stats -->
 <section class="section">
   <div class="wrap">
-    <div class="card" style="padding:var(--s14) var(--s10);background:var(--white)">
+    <div class="card" style="padding:var(--s14) var(--s10)">
       <hr class="rule-rainbow" style="width:64px;margin-bottom:var(--s10)">
       <div class="grid g4" data-stats></div>
     </div>

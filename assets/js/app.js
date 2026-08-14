@@ -1,5 +1,50 @@
 /* Bookworm — app shell, shelf state and page controllers. */
 
+/* ============================================================ theme        */
+/* Three states, not two. "system" is the default and the one most people stay
+   on: no data-theme attribute, so the CSS follows prefers-color-scheme and the
+   page changes with the device — including live, at sunset, without a reload.
+   Choosing light or dark pins an override that outlives the session.
+   The pre-paint half of this lives inline in each page's <head>. */
+const THEME_KEY = 'bookworm:theme';
+const MEDIA_DARK = window.matchMedia('(prefers-color-scheme: dark)');
+
+const Theme = {
+  order: ['system', 'light', 'dark'],
+  get() { try { return localStorage.getItem(THEME_KEY) || 'system'; } catch { return 'system'; } },
+  resolve(mode = this.get()) { return mode === 'system' ? (MEDIA_DARK.matches ? 'dark' : 'light') : mode; },
+  apply(mode = this.get()) {
+    const root = document.documentElement;
+    if (mode === 'system') root.removeAttribute('data-theme');
+    else root.setAttribute('data-theme', mode);
+    document.querySelectorAll('[data-theme-btn]').forEach(btn => this.paint(btn, mode));
+  },
+  set(mode) {
+    try { localStorage.setItem(THEME_KEY, mode); } catch {}
+    this.apply(mode);
+  },
+  cycle() {
+    const next = this.order[(this.order.indexOf(this.get()) + 1) % this.order.length];
+    this.set(next);
+    return next;
+  },
+  paint(btn, mode = this.get()) {
+    const shown = this.resolve(mode);
+    btn.dataset.mode = mode;
+    btn.innerHTML = icon(shown === 'dark' ? 'moon' : 'sun', 18) + '<span class="theme-dot"></span>';
+    const label = mode === 'system' ? `Auto — following your device (${shown})`
+      : mode === 'dark' ? 'Dark mode' : 'Light mode';
+    btn.title = label + ' · click to change';
+    btn.setAttribute('aria-label', `Theme: ${label}. Click to change.`);
+  }
+};
+
+/* Follow the device live while on "system" — repaints the icon; CSS handles
+   the colours on its own. */
+MEDIA_DARK.addEventListener('change', () => {
+  if (Theme.get() === 'system') Theme.apply('system');
+});
+
 /* ============================================================ shelf state  */
 const KEY = 'bookworm:shelf:v1';
 const CYCLE = ['none', 'want', 'reading', 'read'];
@@ -62,6 +107,7 @@ function mountShell() {
           </nav>
           <div class="nav-actions">
             <a class="btn btn-ghost" href="library.html">Sign in</a>
+            <button class="theme-btn" data-theme-btn type="button"></button>
             <a class="btn btn-rainbow btn-sm" href="discover.html">Start free ${icon('arrow', 16)}</a>
             <button class="nav-toggle" data-toggle aria-label="Menu" aria-expanded="false">${icon('menu', 20)}</button>
           </div>
@@ -71,6 +117,15 @@ function mountShell() {
     nav.querySelector('[data-toggle]').addEventListener('click', e => {
       const open = links.classList.toggle('open');
       e.currentTarget.setAttribute('aria-expanded', String(open));
+    });
+
+    const themeBtn = nav.querySelector('[data-theme-btn]');
+    Theme.paint(themeBtn);
+    themeBtn.addEventListener('click', () => {
+      const mode = Theme.cycle();
+      toast(mode === 'system'
+        ? `Following your device — currently ${Theme.resolve()}`
+        : `${mode[0].toUpperCase() + mode.slice(1)} mode`);
     });
   }
 
@@ -144,8 +199,9 @@ function toast(msg) {
     el = document.createElement('div');
     el.setAttribute('data-toast', '');
     el.style.cssText = `position:fixed;left:50%;bottom:28px;transform:translate(-50%,20px);z-index:200;
-      padding:12px 20px;border-radius:9999px;background:#08304c;color:#fff;font-size:14px;font-weight:500;
-      box-shadow:0 18px 30px -14px rgba(8,48,76,.5);opacity:0;transition:opacity .25s,transform .25s;pointer-events:none`;
+      padding:12px 20px;border-radius:9999px;background:var(--solid-bg);color:var(--solid-fg);
+      font-size:14px;font-weight:500;box-shadow:var(--shadow-lift);
+      opacity:0;transition:opacity .25s,transform .25s;pointer-events:none`;
     document.body.appendChild(el);
   }
   el.textContent = msg;
@@ -314,7 +370,7 @@ function pageHome() {
         <ul class="stack" style="margin-top:var(--s6)">
           ${f.points.map(p => `<li class="row" style="align-items:flex-start;gap:10px">
             <span style="color:var(--leaf);margin-top:2px">${icon('check', 16)}</span>
-            <span class="body" style="color:var(--graphite)">${p}</span></li>`).join('')}
+            <span class="body" style="color:var(--text)">${p}</span></li>`).join('')}
         </ul>
       </div>
       <div class="${f.wash}" style="border-radius:var(--r-card);padding:var(--s8);${i % 2 ? 'order:1' : ''}">
@@ -394,7 +450,7 @@ function featSummary() {
     </div>
     <hr class="divider" style="margin:var(--s5) 0">
     <span class="caption">Pre-read summary</span>
-    <p class="small" style="margin-top:8px;color:var(--graphite);line-height:1.55">${b.summary}</p>
+    <p class="small" style="margin-top:8px;color:var(--text);line-height:1.55">${b.summary}</p>
     <div class="row row-wrap" style="margin-top:var(--s5);gap:8px">
       <span class="chip">${icon('clock', 13)} ${b.hours} hrs</span>
       <span class="chip">${b.pages} pages</span>
@@ -409,7 +465,7 @@ function featVerdict() {
     <span class="caption">Scored against your history</span>
     <div class="stack" style="margin-top:var(--s5)">
       ${pick.map(b => `
-        <div class="row spread" style="gap:12px;padding:12px;border-radius:var(--r-input);background:var(--canvas)">
+        <div class="row spread" style="gap:12px;padding:12px;border-radius:var(--r-input);background:var(--surface-2)">
           <div class="row" style="gap:12px;min-width:0">
             <div class="cover" style="width:38px;flex:none;border-radius:8px">${coverSVG(b)}</div>
             <div style="min-width:0">
@@ -435,7 +491,7 @@ function featRecs() {
         <p class="meta">${b.author} · ${b.category}</p>
       </div>
     </div>
-    <p class="small" style="margin-top:var(--s5);color:var(--graphite);line-height:1.55">${b.whyForYou}</p>
+    <p class="small" style="margin-top:var(--s5);color:var(--text);line-height:1.55">${b.whyForYou}</p>
     <div class="row" style="margin-top:var(--s5);gap:8px">
       <button class="btn btn-quiet btn-sm" data-cycle="${b.id}">＋ Add to shelf</button>
       <button class="btn btn-ghost btn-sm">Not for me</button>
@@ -575,17 +631,17 @@ function pageBook() {
 
           <div class="grid g2" style="margin-top:var(--s6)">
             <div class="card card-pad wash-mint" style="border:0">
-              <span class="caption" style="color:#0a5f2c">Best for</span>
+              <span class="caption" style="color:var(--wash-mint-fg)">Best for</span>
               <p class="body" style="margin-top:8px;color:var(--ink)">${b.bestFor}</p>
             </div>
             <div class="card card-pad wash-peach" style="border:0">
-              <span class="caption" style="color:#8a4a12">Skip if</span>
+              <span class="caption" style="color:var(--wash-peach-fg)">Skip if</span>
               <p class="body" style="margin-top:8px;color:var(--ink)">${b.skipIf}</p>
             </div>
           </div>
 
           <blockquote class="card card-pad" style="margin-top:var(--s6);padding:var(--s8);border-left:3px solid transparent;
-            background:linear-gradient(var(--white),var(--white)) padding-box, var(--rainbow) border-box">
+            background:linear-gradient(var(--surface),var(--surface)) padding-box, var(--rainbow) border-box">
             <p class="h3" style="font-weight:500;font-size:clamp(20px,2.4vw,26px);line-height:1.3">“${b.quote}”</p>
             <p class="meta" style="margin-top:var(--s4)">Line most highlighted by readers like you</p>
           </blockquote>
@@ -622,7 +678,7 @@ function pageBook() {
 
       <hr class="divider" style="margin:var(--s7) 0">
       <span class="caption">Spoiler-safe summary</span>
-      <p class="body" style="margin-top:10px;color:var(--graphite);font-size:17px;line-height:1.6">${b.summary}</p>
+      <p class="body" style="margin-top:10px;color:var(--text);font-size:17px;line-height:1.6">${b.summary}</p>
 
       <div class="grid g2" style="margin-top:var(--s7);gap:var(--s8)">
         <div>
@@ -630,7 +686,7 @@ function pageBook() {
           <ul class="stack" style="margin-top:12px">
             ${b.takeaways.map(t => `<li class="row" style="align-items:flex-start;gap:10px">
               <span style="color:var(--cobalt);margin-top:2px">${icon('check', 15)}</span>
-              <span class="small" style="color:var(--graphite)">${t}</span></li>`).join('')}
+              <span class="small" style="color:var(--text)">${t}</span></li>`).join('')}
           </ul>
         </div>
         <div>
@@ -723,7 +779,7 @@ function pageDiscover() {
             <p class="meta" style="margin-top:6px">${hero.author} · ${hero.pages} pages · ${hero.hours} hrs</p>
             <p class="body" style="margin-top:var(--s5)">${hero.summary}</p>
             <div class="wash-mint" style="margin-top:var(--s5);padding:var(--s5);border-radius:var(--r-input)">
-              <span class="caption" style="color:#0a5f2c">Why you</span>
+              <span class="caption" style="color:var(--wash-mint-fg)">Why you</span>
               <p class="small" style="margin-top:6px;color:var(--ink)">${hero.whyForYou}</p>
             </div>
             <div class="row" style="margin-top:var(--s6);gap:10px">

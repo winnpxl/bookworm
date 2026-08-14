@@ -6,7 +6,14 @@
 <title>Discover — Bookworm</title>
 <meta name="description" content="Recommendations built from what you actually finish, each one with the reason attached.">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='9' fill='%2308304c'/><path d='M7 9.5c3.4-1.3 5.9-1.3 8.6.6v13c-2.7-1.9-5.2-1.9-8.6-.6z' fill='%23fff'/><path d='M25 9.5c-3.4-1.3-5.9-1.3-8.6.6v13c2.7-1.9 5.2-1.9 8.6-.6z' fill='%23ffa130'/></svg>">
+<meta name="color-scheme" content="light dark">
 <link rel="stylesheet" href="assets/css/style.css">
+<script>
+  try {
+    var t = localStorage.getItem('bookworm:theme');
+    if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t);
+  } catch (e) {}
+</script>
 <style>
   @media (max-width: 860px) {
     [data-feed] .grid[style*="1.2fr"] { grid-template-columns: 1fr !important; }
@@ -45,7 +52,7 @@
         <div class="card card-pad" style="padding:var(--s7)" data-profile></div>
 
         <div class="card card-pad wash-peach" style="border:0;padding:var(--s7)">
-          <span class="caption" style="color:#8a4a12">Reading pattern</span>
+          <span class="caption" style="color:var(--wash-peach-fg)">Reading pattern</span>
           <p class="body" style="margin-top:10px;color:var(--ink)">
             You abandon four out of five books over 500 pages. Bookworm now weights length
             against you before it recommends anything.
