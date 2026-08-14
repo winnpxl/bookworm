@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Discover — Bookworm</title>
+<meta name="description" content="Recommendations built from what you actually finish, each one with the reason attached.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='9' fill='%2308304c'/><path d='M7 9.5c3.4-1.3 5.9-1.3 8.6.6v13c-2.7-1.9-5.2-1.9-8.6-.6z' fill='%23fff'/><path d='M25 9.5c-3.4-1.3-5.9-1.3-8.6.6v13c2.7-1.9 5.2-1.9 8.6-.6z' fill='%23ffa130'/></svg>">
+<link rel="stylesheet" href="assets/css/style.css">
+<style>
+  @media (max-width: 860px) {
+    [data-feed] .grid[style*="1.2fr"] { grid-template-columns: 1fr !important; }
+    .discover-cols { grid-template-columns: 1fr !important; }
+  }
+</style>
+</head>
+<body data-page="discover">
+
+<header class="nav-shell" data-nav></header>
+
+<section class="page-head">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="eyebrow lilac">Discover</span>
+      <h1 class="h1" style="margin-top:var(--s5)">Books chosen from <span class="spark">evidence</span>, not vibes.</h1>
+      <p class="lede" style="margin-top:var(--s5)">
+        Every pick below comes with the reason attached. Change what you're in the mood for and
+        the whole list re-ranks around it.
+      </p>
+    </div>
+
+    <div class="row row-wrap" style="margin-top:var(--s8);gap:var(--s5)">
+      <div class="seg" data-tune></div>
+      <p class="meta" data-mode-note style="max-width:38ch"></p>
+    </div>
+  </div>
+</section>
+
+<section class="section-tight">
+  <div class="wrap">
+    <div class="grid discover-cols" style="grid-template-columns:1fr 320px;gap:var(--s10);align-items:start">
+      <div class="grid g2" data-feed style="gap:var(--s6)"></div>
+
+      <aside style="position:sticky;top:96px;display:grid;gap:var(--s6)">
+        <div class="card card-pad" style="padding:var(--s7)" data-profile></div>
+
+        <div class="card card-pad wash-peach" style="border:0;padding:var(--s7)">
+          <span class="caption" style="color:#8a4a12">Reading pattern</span>
+          <p class="body" style="margin-top:10px;color:var(--ink)">
+            You abandon four out of five books over 500 pages. Bookworm now weights length
+            against you before it recommends anything.
+          </p>
+          <p class="meta" style="margin-top:var(--s5)">Updated after your last finished book</p>
+        </div>
+
+        <div class="card card-pad" style="padding:var(--s7)">
+          <span class="caption">Not seeing it?</span>
+          <p class="small" style="margin-top:10px">Tell Bookworm what you're after in plain English —
+            "short, funny, no sad endings" works fine.</p>
+          <label class="field field-sm" style="margin-top:var(--s5)">
+            <input type="text" placeholder="Describe your next read" aria-label="Describe your next read">
+          </label>
+          <button class="btn btn-rainbow btn-sm btn-block" style="margin-top:10px">Ask Bookworm</button>
+        </div>
+      </aside>
+    </div>
+  </div>
+</section>
+
+<footer class="footer" data-footer></footer>
+
+<script src="assets/js/data.js"></script>
+<script src="assets/js/art.js"></script>
+<script src="assets/js/app.js"></script>
+</body>
+</html>

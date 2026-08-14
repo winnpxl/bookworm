@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bookworm — Know a book before you read it</title>
+<meta name="description" content="Bookworm reads the whole book first, then tells you whether it's worth your week. AI summaries, honest read-or-skip verdicts, and recommendations built from what you actually finish.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='9' fill='%2308304c'/><path d='M7 9.5c3.4-1.3 5.9-1.3 8.6.6v13c-2.7-1.9-5.2-1.9-8.6-.6z' fill='%23fff'/><path d='M25 9.5c-3.4-1.3-5.9-1.3-8.6.6v13c2.7-1.9 5.2-1.9 8.6-.6z' fill='%23ffa130'/></svg>">
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body data-page="home">
+
+<header class="nav-shell" data-nav></header>
+
+<!-- ─────────────────────────────────────────────── hero -->
+<section class="hero">
+  <div class="hero-glow"></div>
+  <div class="wrap">
+    <div class="grid" style="grid-template-columns:1.05fr .95fr;gap:var(--s16);align-items:center">
+      <div>
+        <span class="eyebrow"><span class="dot"></span> AI reading companion</span>
+        <h1 class="display" style="margin-top:var(--s5)">
+          Know a book <span class="spark">before</span> you read it.
+        </h1>
+        <p class="lede" style="margin-top:var(--s6);max-width:52ch">
+          Bookworm reads the whole thing first — then hands you a spoiler-safe summary,
+          the category it truly belongs to, and a straight answer about whether it deserves
+          your next nine hours.
+        </p>
+
+        <form style="margin-top:var(--s8);max-width:560px" autocomplete="off">
+          <label class="field">
+            <span class="muted" aria-hidden="true">
+              <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="9" cy="9" r="5.5"/><path d="M13 13l4 4"/></svg>
+            </span>
+            <input data-hero-search type="text" placeholder="Try a title — Babel, Piranesi, Sapiens…" aria-label="Book title">
+            <button class="btn btn-solid btn-sm" type="submit">Analyse</button>
+          </label>
+        </form>
+
+        <div class="row row-wrap" style="margin-top:var(--s5);gap:8px" data-hero-chips></div>
+
+        <div class="row row-wrap" style="margin-top:var(--s8);gap:var(--s6)">
+          <p class="meta" style="max-width:22ch">Free while in beta · no card, no sign-in yet</p>
+          <span style="width:1px;height:32px;background:var(--ash)"></span>
+          <p class="meta" style="max-width:26ch"><strong class="ink">2.4M books</strong> analysed and counting</p>
+        </div>
+      </div>
+
+      <div class="card card-pad tilt-r" style="padding:var(--s7);box-shadow:var(--shadow-lift)" data-hero-card></div>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────────────────────────────────────────── marquee -->
+<section class="section-tight">
+  <div class="wrap">
+    <p class="caption center" style="margin-bottom:var(--s6)">Reads every shelf, every genre</p>
+    <div class="marquee" data-marquee></div>
+  </div>
+</section>
+
+<!-- ─────────────────────────────────────────────── how it works -->
+<section class="section" id="how">
+  <div class="wrap">
+    <div class="section-head center">
+      <span class="eyebrow mint">How it works</span>
+      <h2 class="h2">Three steps between a stranger of a book and a decision.</h2>
+      <p class="lede">No star averages, no algorithmic popularity contest. Just your shelf, your pace,
+        and an honest read on what a book will actually cost you.</p>
+    </div>
+    <div class="grid g3" style="margin-top:var(--s12)" data-steps></div>
+  </div>
+</section>
+
+<!-- ─────────────────────────────────────────────── features -->
+<section class="section" id="features">
+  <div class="wrap" data-features></div>
+</section>
+
+<!-- ─────────────────────────────────────────────── shelf -->
+<section class="section">
+  <div class="wrap">
+    <div class="row spread row-wrap" style="gap:var(--s5)">
+      <div class="section-head" style="max-width:560px">
+        <span class="eyebrow peach">Your shelf</span>
+        <h2 class="h2">Read, reading, and honestly never going to.</h2>
+        <p class="lede">Every book carries its own state and its own verdict. Tap a cover to see the
+          full breakdown, or move a book along your shelf right here.</p>
+      </div>
+      <a class="btn btn-rainbow" href="library.html">Open my library →</a>
+    </div>
+    <div class="shelf-rail" style="margin-top:var(--s10)" data-rail></div>
+  </div>
+</section>
+
+<!-- ─────────────────────────────────────────────── stats -->
+<section class="section">
+  <div class="wrap">
+    <div class="card" style="padding:var(--s14) var(--s10);background:var(--white)">
+      <hr class="rule-rainbow" style="width:64px;margin-bottom:var(--s10)">
+      <div class="grid g4" data-stats></div>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────────────────────────────────────────── testimonials -->
+<section class="section">
+  <div class="wrap">
+    <div class="section-head center">
+      <span class="eyebrow lilac">Readers</span>
+      <h2 class="h2">People who stopped finishing books they hated.</h2>
+    </div>
+    <div class="grid g3" style="margin-top:var(--s12)" data-testimonials></div>
+  </div>
+</section>
+
+<!-- ─────────────────────────────────────────────── faq -->
+<section class="section" id="faq">
+  <div class="wrap">
+    <div class="grid g2" style="gap:var(--s16);align-items:start">
+      <div class="section-head">
+        <span class="eyebrow">FAQ</span>
+        <h2 class="h2">The questions readers ask first.</h2>
+        <p class="lede">Still curious? The answer is usually “it depends on your shelf” — which is
+          rather the point.</p>
+        <a class="btn btn-quiet" style="margin-top:var(--s6)" href="discover.html">See it on real books →</a>
+      </div>
+      <div class="faq" data-faq></div>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────────────────────────────────────────── cta -->
+<section class="section">
+  <div class="wrap">
+    <div class="card center" style="padding:var(--s20) var(--s10);position:relative;overflow:hidden">
+      <div style="position:absolute;inset:auto -10% -60% ;height:340px;background:
+        radial-gradient(40% 60% at 30% 0%, rgba(38,192,255,.16), transparent 70%),
+        radial-gradient(40% 60% at 70% 0%, rgba(255,161,62,.16), transparent 70%);"></div>
+      <div style="position:relative">
+        <span class="eyebrow mint">Free while in beta</span>
+        <h2 class="h1" style="margin-top:var(--s5);max-width:18ch;margin-inline:auto">
+          Stop reading books you <span class="spark">already know</span> you'll abandon.
+        </h2>
+        <p class="lede" style="margin-top:var(--s6);max-width:52ch;margin-inline:auto">
+          Add your first five books and Bookworm will already know more about your reading
+          than any shelf you've ever kept.
+        </p>
+        <div class="row" style="justify-content:center;margin-top:var(--s8);gap:12px;flex-wrap:wrap">
+          <a class="btn btn-solid" href="discover.html">Start reading smarter</a>
+          <a class="btn btn-quiet" href="library.html">Browse the demo library</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer class="footer" data-footer></footer>
+
+<script src="assets/js/data.js"></script>
+<script src="assets/js/art.js"></script>
+<script src="assets/js/app.js"></script>
+</body>
+</html>
