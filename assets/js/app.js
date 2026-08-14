@@ -78,7 +78,7 @@ function mountShell() {
   if (foot) {
     foot.innerHTML = `
       <div class="wrap">
-        <div class="grid" style="grid-template-columns:1.6fr 1fr 1fr 1fr;align-items:start;gap:var(--s10)">
+        <div class="grid footer-grid">
           <div>
             <a class="brand" href="index.html">${logoSVG(30)}<span class="brand-name">Bookworm</span></a>
             <p class="small" style="margin-top:var(--s4);max-width:34ch">
@@ -306,7 +306,7 @@ function pageHome() {
   if (feats) feats.innerHTML = FEATURES.map((f, i) => {
     const demo = [featSummary(), featVerdict(), featRecs()][i];
     return `
-    <div class="grid g2 reveal" style="align-items:center;gap:var(--s16);${i ? 'margin-top:var(--s20)' : ''}">
+    <div class="grid g2 feature-row reveal" style="align-items:center;gap:var(--s16);${i ? 'margin-top:var(--s20)' : ''}">
       <div style="${i % 2 ? 'order:2' : ''}">
         <span class="eyebrow ${['', 'peach', 'mint'][i]}">${f.eyebrow}</span>
         <h3 class="h2" style="margin-top:var(--s5)">${f.title}</h3>

@@ -85,7 +85,7 @@
 *, *::before, *::after { box-sizing: border-box; }
 * { margin: 0; }
 
-html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; overflow-x: clip; }
 
 body {
   font-family: var(--font-ui);
@@ -165,6 +165,9 @@ ul, ol { list-style: none; padding: 0; }
 .spread { justify-content: space-between; }
 
 .divider { height: 1px; background: var(--mist); border: 0; }
+
+.hero-grid { grid-template-columns: 1.05fr .95fr; gap: var(--s16); align-items: center; }
+.footer-grid { grid-template-columns: 1.6fr 1fr 1fr 1fr; align-items: start; gap: var(--s10); }
 
 /* --------------------------------------------------------------------------
    5. Buttons, pills, chips
@@ -422,7 +425,7 @@ ul, ol { list-style: none; padding: 0; }
 .page-head { padding-block: var(--s12) var(--s8); }
 .hero { position: relative; padding-block: var(--s16) var(--s12); }
 .hero-glow {
-  position: absolute; inset: -20% -10% auto; height: 640px; z-index: -1; pointer-events: none;
+  position: absolute; inset: -20% 0 auto; height: 640px; z-index: -1; pointer-events: none;
   background:
     radial-gradient(46% 42% at 18% 34%, rgba(38, 192, 255, .16), transparent 70%),
     radial-gradient(38% 40% at 78% 22%, rgba(255, 161, 62, .16), transparent 70%),
@@ -450,6 +453,11 @@ ul, ol { list-style: none; padding: 0; }
    -------------------------------------------------------------------------- */
 @media (max-width: 1000px) {
   .g4 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .footer-grid { grid-template-columns: 1fr 1fr; gap: var(--s8); }
+}
+@media (max-width: 900px) {
+  .hero-grid { grid-template-columns: 1fr; gap: var(--s10); }
+  .hero-grid > :last-child { max-width: 520px; }
 }
 @media (max-width: 760px) {
   .section { padding-block: var(--s12); }
@@ -457,4 +465,13 @@ ul, ol { list-style: none; padding: 0; }
   .g4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .tilt-l, .tilt-r { transform: none; }
   .hero { padding-block: var(--s10) var(--s8); }
+  .display { letter-spacing: -.035em; }
+  .shelf-rail > * { flex-basis: 144px; }
+  .feature-row > * { order: 0 !important; }
+  .feature-row { gap: var(--s8) !important; }
+}
+@media (max-width: 540px) {
+  .footer-grid { grid-template-columns: 1fr; }
+  .g4 { grid-template-columns: 1fr 1fr; }
+  .seg { width: 100%; overflow-x: auto; }
 }
