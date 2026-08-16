@@ -607,7 +607,7 @@ function mountAccountBanner() {
          <span class="avatar">${avatarSVG(Account.person(p))}</span>
          <div>
            <p class="h4" style="font-size:17px">Welcome back, ${esc(Account.firstName())}.</p>
-           <p class="meta">@${esc(p.handle)} · signed in with ${p.method === 'passkey' ? 'a passkey' : 'a one-time code'} · shelf synced</p>
+           <p class="meta">@${esc(p.handle)} · signed in with a one-time code · shelf synced</p>
          </div>
        </div>
        <a class="btn btn-quiet btn-sm" href="discover.html">Today's picks ${icon('arrow', 15)}</a>`

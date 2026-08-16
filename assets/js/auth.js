@@ -1,13 +1,12 @@
 /* Bookworm — passwordless authentication.
 
    There are no passwords anywhere in this flow. Identity is proved by a
-   one-time code sent to an email address, or by a passkey held on the device.
+   one-time six-digit code sent to the user's email address.
 
-   This is a prototype with no server: no mail is sent, the code is surfaced on
-   screen, and the passkey path is simulated rather than a real WebAuthn
-   ceremony. The state machine, validation and copy are the real deliverable —
-   swapping the two SIMULATED blocks below for API calls is the whole backend
-   integration. */
+   This is a prototype with no server: no mail is sent and the code is surfaced
+   on screen instead. The state machine, validation and copy are the real
+   deliverable — swapping the SIMULATED block below for an API call is the
+   whole backend integration. */
 
 /* The Account model itself lives in app.js, beside Shelf — every page needs to
    know who is signed in, only this page needs the flow. */
@@ -61,23 +60,17 @@ function pageAuth() {
   /* One resend cooldown at a time — every re-render replaces the DOM it writes to. */
   let cooldown;
 
-  /* ------------------------------------------------------- SIMULATED (1/2)
+  /* ----------------------------------------------------------- SIMULATED
      Stands in for POST /auth/code — issues a one-time code and mails it. */
   function sendCode() {
     state.sentCode = String(Math.floor(100000 + Math.random() * 900000));
     return state.sentCode;
   }
 
-  /* ------------------------------------------------------- SIMULATED (2/2)
-     Stands in for the WebAuthn ceremony: navigator.credentials.create/get
-     against a server-issued challenge. */
-  function passkey(action) {
-    return new Promise(resolve => setTimeout(() => resolve(true), 1200));
-  }
-
   /* ------------------------------------------------------------- rendering */
   function render() {
     clearInterval(cooldown);
+    document.title = `${isSignup() ? 'Create your account' : 'Sign in'} — Bookworm`;
     root.innerHTML = `
       <div class="wrap">
         <div class="auth-wrap">
@@ -108,17 +101,15 @@ function pageAuth() {
     return `
       ${stepsBar()}
       <span class="eyebrow" style="margin-top:var(--s6)">
-        <span class="dot"></span> ${isSignup() ? 'Create your shelf' : 'Welcome back'}
+        <span class="dot"></span> ${isSignup() ? 'Sign up' : 'Welcome back'}
       </span>
       <h1 class="h1" style="margin-top:var(--s5)">
-        ${isSignup()
-          ? `Start with an email. <span class="spark">No password</span>, ever.`
-          : `Sign in with a <span class="spark">single</span> code.`}
+        ${isSignup() ? 'Create your account.' : 'Sign in to Bookworm.'}
       </h1>
       <p class="lede" style="margin-top:var(--s5)">
         ${isSignup()
-          ? 'We send a six-digit code to confirm it is you, then you pick a name and a handle. That is the whole sign-up.'
-          : 'Enter the address on your account and we will send a six-digit code. Nothing to remember, nothing to reset.'}
+          ? 'Enter your email and we will send you a six-digit code. Then pick a name and a handle — that is the whole sign-up.'
+          : 'Enter the email on your account and we will send you a six-digit code to sign in.'}
       </p>
 
       <form style="margin-top:var(--s8)" novalidate data-form="email">
@@ -135,13 +126,9 @@ function pageAuth() {
 
       <div class="or-rule" style="margin-block:var(--s6)">or</div>
 
-      <div class="stack">
-        <button class="btn btn-quiet btn-block" data-passkey type="button">
-          ${icon('key', 17)} ${isSignup() ? 'Set up a passkey instead' : 'Use a passkey'}
-        </button>
-        <button class="btn btn-quiet btn-block" data-oauth="Google" type="button">${icon('globe', 17)} Continue with Google</button>
-        <button class="btn btn-quiet btn-block" data-oauth="Apple" type="button">${icon('apple', 17)} Continue with Apple</button>
-      </div>
+      <button class="btn btn-quiet btn-block" data-oauth="Google" type="button">
+        ${icon('globe', 17)} Continue with Google
+      </button>
 
       <p class="small" style="margin-top:var(--s7)">
         ${isSignup()
@@ -201,7 +188,7 @@ function pageAuth() {
     return `
       ${stepsBar()}
       <span class="eyebrow mint" style="margin-top:var(--s6)">${icon('check', 12)} Email confirmed</span>
-      <h1 class="h1" style="margin-top:var(--s5)">Now, who is reading?</h1>
+      <h1 class="h1" style="margin-top:var(--s5)">Set up your profile.</h1>
       <p class="lede" style="margin-top:var(--s5)">
         Your name and handle are how your shelf is labelled. Everything here can be changed later.
       </p>
@@ -300,7 +287,7 @@ function pageAuth() {
           </div>
         </div>
         <hr class="divider" style="margin:var(--s5) 0">
-        <p class="meta">Signed in with ${p.method === 'passkey' ? 'a passkey' : 'a one-time email code'} · no password stored</p>
+        <p class="meta">Signed in with a one-time email code · no password stored</p>
       </div>
       <div class="row" style="margin-top:var(--s7);gap:10px;flex-wrap:wrap">
         <a class="btn btn-solid" href="discover.html">See my recommendations ${icon('arrow', 16)}</a>
@@ -312,7 +299,7 @@ function pageAuth() {
   function asideMarkup() {
     const covers = ['piranesi', 'project-hail-mary', 'circe'].map(byId);
     const lines = {
-      1: ['Why passwordless?', 'A password is one more thing to lose. A code lands in the inbox you already have open, and a passkey never leaves your device.'],
+      1: ['Why no password?', 'A password is one more thing to lose or reuse. A single-use code lands in the inbox you already have open, and there is nothing to reset later.'],
       2: ['One code, ten minutes', 'Codes are single-use and expire quickly. Nothing about your account can be reset by guessing.'],
       3: ['Your shelf, private', 'Nothing is public unless you share it. Export or delete everything whenever you like.'],
       4: ['Ready when you are', 'Sixteen books are already analysed and waiting on your shelf.']
@@ -324,7 +311,7 @@ function pageAuth() {
         <span class="caption">${esc(lines[0])}</span>
         <p class="body" style="margin-top:10px;color:var(--text)">${esc(lines[1])}</p>
         <div class="row" style="margin-top:var(--s6);gap:8px;flex-wrap:wrap">
-          <span class="chip">${icon('key', 13)} No passwords</span>
+          <span class="chip">${icon('check', 13)} No passwords</span>
           <span class="chip">${icon('check', 13)} Private by default</span>
         </div>
       </div>`;
@@ -346,7 +333,6 @@ function pageAuth() {
       state.mode = a.dataset.switch;
       state.step = 1;
       history.replaceState(null, '', `auth.html?mode=${state.mode}`);
-      document.title = `${state.mode === 'signup' ? 'Create your account' : 'Sign in'} — Bookworm`;
       render();
     }));
 
@@ -372,40 +358,6 @@ function pageAuth() {
         sendCode();
         state.step = 2;
         render();
-      });
-
-      root.querySelector('[data-passkey]').addEventListener('click', async e => {
-        const btn = e.currentTarget;
-        const original = btn.innerHTML;
-        btn.disabled = true;
-        btn.innerHTML = `${icon('key', 17)} Waiting for your device…`;
-        await passkey(isSignup() ? 'create' : 'get');
-        btn.innerHTML = original;
-        btn.disabled = false;
-
-        if (isSignup()) {
-          state.method = 'passkey';
-          state.email = state.email || root.querySelector('#email').value.trim();
-          if (!validEmail(state.email)) {
-            setHint('email', 'Add your email first — a passkey still needs an account to attach to.', 'err');
-            root.querySelector('#email').focus();
-            return;
-          }
-          state.step = 3;
-          render();
-          toast('Passkey created on this device');
-        } else {
-          const existing = Account.get();
-          if (!existing) {
-            toast('No passkey found here — create an account first');
-            return;
-          }
-          Account.save({ method: 'passkey', lastSignIn: new Date().toISOString() });
-          state.step = 4;
-          render();
-          document.dispatchEvent(new CustomEvent('account:change'));
-          toast(`Signed in as @${existing.handle}`);
-        }
       });
 
       root.querySelectorAll('[data-oauth]').forEach(b => b.addEventListener('click', () =>

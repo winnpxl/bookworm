@@ -16,7 +16,7 @@ demo of the app itself. Authentication and a real model backend come next.
 | `library.html` | Your shelf: read / reading / want to read, with search, category and sort filters |
 | `book.html?id=…` | Full breakdown: match score, summary, reading signals, "why this, for you", similar books |
 | `discover.html` | Recommendations with the reason attached, re-rankable by mood (shorter, lighter, challenge me) |
-| `auth.html?mode=…` | Passwordless sign up and sign in — one-time email code or passkey |
+| `auth.html?mode=…` | Passwordless sign up and sign in via a one-time email code |
 
 ## Running it
 
@@ -58,13 +58,11 @@ buttons, pill chips. Typeset in Switzer with General Sans for display.
 ## Authentication
 
 Passwordless throughout — there is no password field anywhere in the app, so
-there is nothing to hash, store, reset or leak. Identity is proved one of two
-ways:
-
-- **One-time email code.** Six digits, single-use, ten-minute expiry. The input
-  is six linked boxes with auto-advance, paste-the-whole-code, backspace and
-  arrow-key navigation, and auto-submit on the sixth digit.
-- **Passkey.** Offered first on the sign-in screen for returning readers.
+there is nothing to hash, store, reset or leak. Identity is proved by a
+**one-time email code**: six digits, single-use, ten-minute expiry. The input is
+six linked boxes with auto-advance, paste-the-whole-code, backspace and
+arrow-key navigation, and auto-submit on the sixth digit. *Continue with Google*
+is offered as the one alternative.
 
 **Sign up** is three steps: email → code → profile. The profile step collects a
 display name, a unique `@handle` (auto-suggested from the name, sanitised as you
@@ -83,11 +81,10 @@ the nav account menu and the banner on the library and discover pages; signing
 out re-ranks Discover on the spot.
 
 > **Prototype scope.** No server, so no mail is sent — the code is shown on
-> screen with a *Fill it for me* shortcut, and the passkey path is simulated
-> rather than a real WebAuthn ceremony. The two stand-ins are marked `SIMULATED`
-> in `auth.js`; replacing them with `POST /auth/code` and
-> `navigator.credentials.create/get` is the whole backend integration. The state
-> machine, validation, and error paths are real.
+> screen with a *Fill it for me* shortcut. That stand-in is marked `SIMULATED`
+> in `auth.js`; replacing it with `POST /auth/code` is the whole backend
+> integration. Google sign-in is a button only. The state machine, validation,
+> and error paths are real.
 
 ## Theming
 
