@@ -17,6 +17,7 @@ demo of the app itself. Authentication and a real model backend come next.
 | `book.html?id=…` | Full breakdown: match score, summary, reading signals, "why this, for you", similar books |
 | `discover.html` | Recommendations with the reason attached, re-rankable by mood (shorter, lighter, challenge me) |
 | `auth.html?mode=…` | Passwordless sign up and sign in via a one-time email code |
+| `profile.html` | Your profile: identity, taste, goal, reading record, account and data |
 
 ## Running it
 
@@ -36,6 +37,7 @@ assets/js/data.js      Book dataset and site copy
 assets/js/art.js       Generated SVG — covers, avatars, brand mark, gauges, icons
 assets/js/app.js       Shelf + account state, theme, page controllers, analysis demo
 assets/js/auth.js      The passwordless sign-up / sign-in state machine
+assets/js/profile.js   Profile page — draft/save editing over the account model
 ```
 
 **No image files.** Every cover, avatar and icon is drawn as SVG at runtime from
@@ -85,6 +87,29 @@ out re-ranks Discover on the spot.
 > in `auth.js`; replacing it with `POST /auth/code` is the whole backend
 > integration. Google sign-in is a button only. The state machine, validation,
 > and error paths are real.
+
+## Profile
+
+Signed out, `profile.html` is a short prompt to create an account. Signed in, it
+carries four things:
+
+- **Identity** — avatar, display name and handle, edited live. The header
+  updates as you type, and your own handle is never reported as taken.
+- **Taste and targets** — categories and a yearly goal, alongside where your
+  finished books actually sit, so intent and behaviour are visible together.
+- **Reading record** — goal ring, pages, hours, average rating and length,
+  what you are part-way through, and how often the verdict said *read it* on a
+  book you went on to finish.
+- **Account and data** — change of email (re-verified with a fresh code through
+  the same six-box component as sign-in), the recap opt-in, an appearance
+  control mirroring the nav switch, a JSON export of profile and shelf, sign
+  out, and a delete that needs two presses.
+
+Edits are held in a draft and written only on **Save**, so the save bar appears
+only when something genuinely differs from what is stored, undoing a change by
+hand makes it disappear again, and **Discard** is real. Validation gates block
+the save without touching storage. Theme is the deliberate exception — it
+applies the moment it is picked, because a preview is the point.
 
 ## Theming
 

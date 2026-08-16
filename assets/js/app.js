@@ -180,8 +180,8 @@ function mountShell() {
             <ul class="stack">
               <li><a href="library.html">My library</a></li>
               <li><a href="discover.html">Discover</a></li>
+              <li><a href="profile.html">Profile</a></li>
               <li><a href="index.html#how">How it works</a></li>
-              <li><a href="index.html#features">Features</a></li>
             </ul>
           </div>
           <div>
@@ -243,7 +243,7 @@ function mountAccount(slot) {
       <hr class="divider" style="margin:0 0 6px">
       <a href="library.html" role="menuitem">${icon('book', 16)} My library</a>
       <a href="discover.html" role="menuitem">${icon('spark', 16)} Recommendations</a>
-      <a href="auth.html?mode=signup" role="menuitem">${icon('user', 16)} Profile</a>
+      <a href="profile.html" role="menuitem">${icon('user', 16)} Profile</a>
       <hr class="divider" style="margin:6px 0">
       <button data-signout role="menuitem">${icon('logout', 16)} Sign out</button>
     </div>`;
@@ -995,6 +995,7 @@ document.addEventListener('DOMContentLoaded', () => {
     library: pageLibrary,
     book: pageBook,
     discover: pageDiscover,
-    auth: typeof pageAuth === 'function' ? pageAuth : null
+    auth: typeof pageAuth === 'function' ? pageAuth : null,
+    profile: typeof pageProfile === 'function' ? pageProfile : null
   }[document.body.dataset.page] || (() => {}))();
 });

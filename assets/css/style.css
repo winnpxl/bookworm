@@ -724,6 +724,39 @@ ul, ol { list-style: none; padding: 0; }
   border-radius: var(--r-card); background: var(--wash-sky);
 }
 
+/* Profile ----------------------------------------------------------------- */
+.profile-grid { grid-template-columns: 1fr 340px; gap: var(--s8); align-items: start; }
+.profile-head { display: flex; align-items: center; gap: var(--s6); flex-wrap: wrap; }
+.profile-head .avatar { width: 88px; height: 88px; }
+
+.tile { padding: var(--s5); border-radius: var(--r-input); background: var(--surface-2); }
+
+.rowline {
+  display: flex; align-items: center; justify-content: space-between; gap: var(--s4);
+  padding: var(--s4) 0; border-bottom: 1px solid var(--border);
+}
+.rowline:last-child { border-bottom: 0; }
+.rowline > div { min-width: 0; }
+.rowline b { display: block; font-size: 14px; font-weight: 500; color: var(--ink); }
+.rowline span { font-size: 12px; color: var(--text-dim); word-break: break-word; }
+
+.savebar {
+  position: sticky; bottom: 20px; z-index: 50; margin-top: var(--s8);
+  display: flex; align-items: center; justify-content: space-between; gap: var(--s4);
+  padding: 12px 12px 12px 22px;
+  background: var(--surface); border: var(--hairline); border-radius: var(--r-btn);
+  box-shadow: var(--shadow-lift);
+  opacity: 0; visibility: hidden; transform: translateY(16px);
+  transition: opacity .25s var(--ease), transform .25s var(--ease), visibility .25s;
+}
+.savebar.on { opacity: 1; visibility: visible; transform: none; }
+
+.danger-btn {
+  border: 1.5px solid var(--wash-rose-fg); color: var(--wash-rose-fg);
+  background: transparent;
+}
+.danger-btn:hover { background: var(--wash-rose); }
+
 /* --------------------------------------------------------------------------
    15. Page furniture
    -------------------------------------------------------------------------- */
@@ -762,6 +795,7 @@ ul, ol { list-style: none; padding: 0; }
   .auth-wrap { grid-template-columns: 1fr; gap: var(--s12); }
   .auth-aside { display: none; }
   .auth-col { max-width: 520px; margin-inline: auto; }
+  .profile-grid { grid-template-columns: 1fr; }
 }
 @media (max-width: 900px) {
   .hero-grid { grid-template-columns: 1fr; gap: var(--s10); }
@@ -784,6 +818,9 @@ ul, ol { list-style: none; padding: 0; }
   .seg { width: 100%; overflow-x: auto; }
   .otp { gap: 6px; }
   .otp input { height: 54px; font-size: 20px; }
+  .rowline { flex-wrap: wrap; }
+  .profile-head .avatar { width: 64px; height: 64px; }
+  .savebar { padding-left: 16px; flex-wrap: wrap; }
   .account-btn b { display: none; }
   .account-btn { padding: 4px; }
 }

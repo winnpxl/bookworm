@@ -30,6 +30,58 @@ function handleError(h) {
 const suggestHandle = name => name.trim().toLowerCase()
   .replace(/[^a-z0-9\s_]/g, '').replace(/\s+/g, '_').slice(0, 20);
 
+/* ------------------------------------------------------------ code input   */
+/* Six linked boxes. Shared with the profile page, which reuses the same
+   component to confirm a change of email address. */
+function otpMarkup(prefix = 'otp') {
+  return `<div class="otp" data-otp>
+    ${Array.from({ length: 6 }, (_, i) =>
+      `<input id="${prefix}-${i}" type="text" inputmode="numeric" maxlength="1"
+              aria-label="Digit ${i + 1} of 6"
+              autocomplete="${i === 0 ? 'one-time-code' : 'off'}">`).join('')}
+  </div>`;
+}
+
+function wireOtpBoxes(wrap, onFull) {
+  const boxes = [...wrap.querySelectorAll('input')];
+  const read = () => boxes.map(b => b.value).join('');
+  const paint = () => boxes.forEach(b => b.classList.toggle('filled', !!b.value));
+
+  boxes.forEach((box, i) => {
+    box.addEventListener('input', () => {
+      box.value = box.value.replace(/\D/g, '').slice(0, 1);
+      paint();
+      wrap.dataset.state = '';
+      if (box.value && i < 5) boxes[i + 1].focus();
+      if (read().length === 6) onFull(read());
+    });
+    box.addEventListener('keydown', e => {
+      if (e.key === 'Backspace' && !box.value && i > 0) { boxes[i - 1].focus(); boxes[i - 1].value = ''; paint(); }
+      if (e.key === 'ArrowLeft' && i > 0) boxes[i - 1].focus();
+      if (e.key === 'ArrowRight' && i < 5) boxes[i + 1].focus();
+    });
+    box.addEventListener('paste', e => {
+      e.preventDefault();
+      const digits = (e.clipboardData.getData('text') || '').replace(/\D/g, '').slice(0, 6).split('');
+      digits.forEach((d, k) => { if (boxes[k]) boxes[k].value = d; });
+      paint();
+      boxes[Math.min(digits.length, 5)].focus();
+      if (read().length === 6) onFull(read());
+    });
+  });
+
+  return {
+    read,
+    focus: () => boxes[0].focus(),
+    fill(code) { code.split('').forEach((d, k) => { if (boxes[k]) boxes[k].value = d; }); paint(); },
+    reject() {
+      wrap.dataset.state = 'err';
+      boxes.forEach(b => { b.value = ''; b.classList.remove('filled'); });
+      boxes[0].focus();
+    }
+  };
+}
+
 /* ============================================================ auth page    */
 function pageAuth() {
   const root = document.querySelector('[data-auth]');
@@ -158,11 +210,7 @@ function pageAuth() {
 
       <form style="margin-top:var(--s7)" novalidate data-form="code">
         <label class="label" for="otp-0">Verification code</label>
-        <div class="otp" data-otp>
-          ${Array.from({ length: 6 }, (_, i) =>
-            `<input id="otp-${i}" type="text" inputmode="numeric" maxlength="1" aria-label="Digit ${i + 1} of 6"
-                    autocomplete="${i === 0 ? 'one-time-code' : 'off'}">`).join('')}
-        </div>
+        ${otpMarkup()}
         <p class="hint" data-hint="code">The code expires in 10 minutes.</p>
 
         ${!isSignup() ? `
@@ -366,39 +414,13 @@ function pageAuth() {
 
     const codeForm = root.querySelector('[data-form="code"]');
     if (codeForm) {
-      const boxes = [...root.querySelectorAll('[data-otp] input')];
       const wrap = root.querySelector('[data-otp]');
-
-      const readCode = () => boxes.map(b => b.value).join('');
-      const paint = () => boxes.forEach(b => b.classList.toggle('filled', !!b.value));
-
-      boxes.forEach((box, i) => {
-        box.addEventListener('input', () => {
-          box.value = box.value.replace(/\D/g, '').slice(0, 1);
-          paint();
-          wrap.dataset.state = '';
-          if (box.value && i < 5) boxes[i + 1].focus();
-          if (readCode().length === 6) codeForm.requestSubmit();
-        });
-        box.addEventListener('keydown', e => {
-          if (e.key === 'Backspace' && !box.value && i > 0) { boxes[i - 1].focus(); boxes[i - 1].value = ''; paint(); }
-          if (e.key === 'ArrowLeft' && i > 0) boxes[i - 1].focus();
-          if (e.key === 'ArrowRight' && i < 5) boxes[i + 1].focus();
-        });
-        box.addEventListener('paste', e => {
-          e.preventDefault();
-          const digits = (e.clipboardData.getData('text') || '').replace(/\D/g, '').slice(0, 6).split('');
-          digits.forEach((d, k) => { if (boxes[k]) boxes[k].value = d; });
-          paint();
-          boxes[Math.min(digits.length, 5)].focus();
-          if (readCode().length === 6) codeForm.requestSubmit();
-        });
-      });
-      boxes[0].focus();
+      const otp = wireOtpBoxes(wrap, () => codeForm.requestSubmit());
+      const readCode = otp.read;
+      otp.focus();
 
       root.querySelector('[data-autofill]').addEventListener('click', () => {
-        state.sentCode.split('').forEach((d, k) => { boxes[k].value = d; });
-        paint();
+        otp.fill(state.sentCode);
         codeForm.requestSubmit();
       });
 
@@ -433,10 +455,8 @@ function pageAuth() {
         const entered = readCode();
         if (entered.length < 6) { setHint('code', 'Enter all six digits.', 'err'); return; }
         if (entered !== state.sentCode) {
-          wrap.dataset.state = 'err';
           setHint('code', 'That code is not right. Check the digits and try again.', 'err');
-          boxes.forEach(b => { b.value = ''; b.classList.remove('filled'); });
-          boxes[0].focus();
+          otp.reject();
           return;
         }
         clearInterval(cooldown);
