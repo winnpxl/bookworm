@@ -80,6 +80,37 @@ Shelf.load();
 
 const byId = id => BOOKS.find(b => b.id === id);
 
+/* ============================================================ account      */
+/* Passwordless only — there is no password field anywhere in this app, so
+   there is nothing here to hash, store or leak. The signed-in record holds a
+   profile and the method used, never a secret. The flow that fills it in lives
+   in auth.js. */
+const ACCOUNT_KEY = 'bookworm:account:v1';
+
+const ACCENTS = [
+  { bg: '#e8f1ff', accent: '#3b82f6', name: 'Sky' },
+  { bg: '#d7ffe2', accent: '#00cc3d', name: 'Mint' },
+  { bg: '#ffebd6', accent: '#ffa130', name: 'Peach' },
+  { bg: '#f0e9ff', accent: '#8e51ff', name: 'Lilac' }
+];
+
+const Account = {
+  get() { try { return JSON.parse(localStorage.getItem(ACCOUNT_KEY)); } catch { return null; } },
+  signedIn() { return !!this.get(); },
+  save(profile) {
+    const next = { ...(this.get() || {}), ...profile };
+    try { localStorage.setItem(ACCOUNT_KEY, JSON.stringify(next)); } catch {}
+    return next;
+  },
+  signOut() { try { localStorage.removeItem(ACCOUNT_KEY); } catch {} },
+  firstName() { const p = this.get(); return p && p.name ? p.name.split(' ')[0] : ''; },
+  /* Shaped the way avatarSVG() expects, so account art comes out of the same
+     generator as every other avatar on the site. */
+  person(p = this.get()) {
+    return p ? { name: p.name || p.handle || p.email, art: p.accent || ACCENTS[0] } : null;
+  }
+};
+
 /* ================================================================ shell    */
 const NAV = [
   ['index.html', 'Home'],
@@ -106,9 +137,8 @@ function mountShell() {
             }).join('')}
           </nav>
           <div class="nav-actions">
-            <a class="btn btn-ghost" href="library.html">Sign in</a>
             <button class="theme-btn" data-theme-btn type="button"></button>
-            <a class="btn btn-rainbow btn-sm" href="discover.html">Start free ${icon('arrow', 16)}</a>
+            <span data-account-slot></span>
             <button class="nav-toggle" data-toggle aria-label="Menu" aria-expanded="false">${icon('menu', 20)}</button>
           </div>
         </div>
@@ -127,6 +157,9 @@ function mountShell() {
         ? `Following your device — currently ${Theme.resolve()}`
         : `${mode[0].toUpperCase() + mode.slice(1)} mode`);
     });
+
+    mountAccount(nav.querySelector('[data-account-slot]'));
+    document.addEventListener('account:change', () => mountAccount(nav.querySelector('[data-account-slot]')));
   }
 
   const foot = document.querySelector('[data-footer]');
@@ -178,6 +211,69 @@ function mountShell() {
   }
 
   revealInit();
+}
+
+/* Signed out: sign in + start free. Signed in: the account chip and its menu. */
+function mountAccount(slot) {
+  if (!slot) return;
+  const p = Account.get();
+
+  if (!p) {
+    slot.className = 'row';
+    slot.style.gap = 'var(--s2)';
+    slot.innerHTML = `
+      <a class="btn btn-ghost" href="auth.html?mode=signin">Sign in</a>
+      <a class="btn btn-rainbow btn-sm" href="auth.html?mode=signup">Start free ${icon('arrow', 16)}</a>`;
+    return;
+  }
+
+  slot.className = 'account';
+  slot.removeAttribute('style');
+  slot.innerHTML = `
+    <button class="account-btn" data-account-btn aria-haspopup="true" aria-expanded="false">
+      <span class="avatar">${avatarSVG(Account.person(p))}</span>
+      <b>${esc(Account.firstName())}</b>
+      ${icon('chevron', 15)}
+    </button>
+    <div class="menu" data-menu role="menu">
+      <div class="menu-head">
+        <b>${esc(p.name || '')}</b>
+        <span>@${esc(p.handle || '')} · ${esc(p.email || '')}</span>
+      </div>
+      <hr class="divider" style="margin:0 0 6px">
+      <a href="library.html" role="menuitem">${icon('book', 16)} My library</a>
+      <a href="discover.html" role="menuitem">${icon('spark', 16)} Recommendations</a>
+      <a href="auth.html?mode=signup" role="menuitem">${icon('user', 16)} Profile</a>
+      <hr class="divider" style="margin:6px 0">
+      <button data-signout role="menuitem">${icon('logout', 16)} Sign out</button>
+    </div>`;
+
+  const btn = slot.querySelector('[data-account-btn]');
+  const menu = slot.querySelector('[data-menu]');
+  const close = () => { menu.classList.remove('open'); btn.setAttribute('aria-expanded', 'false'); };
+
+  btn.addEventListener('click', e => {
+    e.stopPropagation();
+    const open = menu.classList.toggle('open');
+    btn.setAttribute('aria-expanded', String(open));
+  });
+
+  /* Replace rather than stack these — mountAccount runs again on every
+     account:change. */
+  document.removeEventListener('click', mountAccount._close);
+  document.removeEventListener('keydown', mountAccount._esc);
+  mountAccount._close = close;
+  mountAccount._esc = e => { if (e.key === 'Escape') close(); };
+  document.addEventListener('click', mountAccount._close);
+  document.addEventListener('keydown', mountAccount._esc);
+
+  slot.querySelector('[data-signout]').addEventListener('click', () => {
+    const name = Account.firstName();
+    Account.signOut();
+    close();
+    document.dispatchEvent(new CustomEvent('account:change'));
+    toast(`Signed out${name ? `, see you soon ${name}` : ''}`);
+  });
 }
 
 function revealInit() {
@@ -499,8 +595,40 @@ function featRecs() {
   </div>`;
 }
 
+/* A shelf held only in this browser is worth a gentle nudge; a signed-in one
+   is worth a greeting. Rendered on both the library and discover pages. */
+function mountAccountBanner() {
+  const el = document.querySelector('[data-account-banner]');
+  if (!el) return;
+  const p = Account.get();
+
+  el.innerHTML = p
+    ? `<div class="row" style="gap:14px">
+         <span class="avatar">${avatarSVG(Account.person(p))}</span>
+         <div>
+           <p class="h4" style="font-size:17px">Welcome back, ${esc(Account.firstName())}.</p>
+           <p class="meta">@${esc(p.handle)} · signed in with ${p.method === 'passkey' ? 'a passkey' : 'a one-time code'} · shelf synced</p>
+         </div>
+       </div>
+       <a class="btn btn-quiet btn-sm" href="discover.html">Today's picks ${icon('arrow', 15)}</a>`
+    : `<div>
+         <p class="h4" style="font-size:17px">You're browsing as a guest.</p>
+         <p class="small" style="margin-top:4px;color:var(--ink)">
+           This shelf lives in this browser only. Create an account — no password, just an email code — to keep it.</p>
+       </div>
+       <div class="row" style="gap:10px">
+         <a class="btn btn-solid btn-sm" href="auth.html?mode=signup">Create my shelf</a>
+         <a class="btn btn-ghost btn-sm" href="auth.html?mode=signin">Sign in</a>
+       </div>`;
+
+  el.className = 'banner ' + (p ? 'wash-mint' : 'wash-sky');
+}
+
 /* ============================================================== LIBRARY    */
 function pageLibrary() {
+  mountAccountBanner();
+  document.addEventListener('account:change', mountAccountBanner);
+
   const grid = document.querySelector('[data-grid]');
   if (!grid) return;
   const state = { q: '', status: 'all', cat: 'All', sort: 'recent' };
@@ -741,23 +869,41 @@ function pageBook() {
 
 /* ============================================================== DISCOVER   */
 function pageDiscover() {
+  mountAccountBanner();
+  document.addEventListener('account:change', mountAccountBanner);
+
   const feed = document.querySelector('[data-feed]');
   if (!feed) return;
   const profile = document.querySelector('[data-profile]');
   const tune = document.querySelector('[data-tune]');
   let mode = 'balanced';
 
-  const MODES = {
-    balanced: { label: 'Balanced', note: 'Ranked purely on how well each book matches your history.', fn: (a, b) => b.score - a.score },
-    short: { label: 'Something shorter', note: 'Weighted towards books you can finish this week.', fn: (a, b) => (b.score - b.pages / 8) - (a.score - a.pages / 8) },
-    light: { label: 'Something lighter', note: 'Favouring pace and warmth over density.', fn: (a, b) => (b.signals.pace - b.signals.depth / 2) - (a.signals.pace - a.signals.depth / 2) },
-    hard: { label: 'Challenge me', note: 'Deliberately denser than your usual shelf.', fn: (a, b) => b.signals.depth - a.signals.depth }
-  };
+  /* Categories picked at sign-up seed the ranking until there is enough
+     reading history to outweigh them. Rebuilt on every render, because signing
+     in or out changes the answer. */
+  function buildModes() {
+    const interests = (Account.get() || {}).interests || [];
+    const seed = b => (interests.includes(b.category) ? 12 : 0);
+    return {
+      balanced: {
+        label: 'Balanced',
+        note: interests.length
+          ? `Ranked on your history, seeded with the ${interests.length} categories you picked at sign-up.`
+          : 'Ranked purely on how well each book matches your history.',
+        fn: (a, b) => (b.score + seed(b)) - (a.score + seed(a))
+      },
+      short: { label: 'Something shorter', note: 'Weighted towards books you can finish this week.', fn: (a, b) => (b.score - b.pages / 8) - (a.score - a.pages / 8) },
+      light: { label: 'Something lighter', note: 'Favouring pace and warmth over density.', fn: (a, b) => (b.signals.pace - b.signals.depth / 2) - (a.signals.pace - a.signals.depth / 2) },
+      hard: { label: 'Challenge me', note: 'Deliberately denser than your usual shelf.', fn: (a, b) => b.signals.depth - a.signals.depth }
+    };
+  }
 
+  let MODES = buildModes();
   tune.innerHTML = Object.entries(MODES).map(([k, m]) =>
     `<button data-mode="${k}" class="${k === mode ? 'on' : ''}">${m.label}</button>`).join('');
 
   function render() {
+    MODES = buildModes();
     tune.querySelectorAll('button').forEach(b => b.classList.toggle('on', b.dataset.mode === mode));
     document.querySelector('[data-mode-note]').textContent = MODES[mode].note;
 
@@ -837,11 +983,18 @@ function pageDiscover() {
     mode = b.dataset.mode; render();
   });
   document.addEventListener('shelf:change', render);
+  document.addEventListener('account:change', render);
   render();
 }
 
 /* ================================================================= boot    */
 document.addEventListener('DOMContentLoaded', () => {
   mountShell();
-  ({ home: pageHome, library: pageLibrary, book: pageBook, discover: pageDiscover }[document.body.dataset.page] || (() => {}))();
+  ({
+    home: pageHome,
+    library: pageLibrary,
+    book: pageBook,
+    discover: pageDiscover,
+    auth: typeof pageAuth === 'function' ? pageAuth : null
+  }[document.body.dataset.page] || (() => {}))();
 });
